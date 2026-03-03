@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Design is centered in the 108x108 viewport.
+         The inner 72dp is the safe zone for adaptive icons. -->
+    <group
+        android:translateX="16"
+        android:translateY="16">
+
+        <!-- Calendar Card Body -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M12,22 h52 c4,0 7,3 7,7 v38 c0,4 -3,7 -7,7 h-52 c-4,0 -7,-3 -7,-7 v-38 c0,-4 3,-7 7,-7 z" />
+
+        <!-- Calendar Purple Header -->
+        <path
+            android:fillColor="#6A1B9A"
+            android:pathData="M12,22 h52 c4,0 7,0 7,6 v10 h-66 v-10 c0,-6 3,-6 7,-6 z" />
+
+        <!-- Calendar Ring Details -->
+        <path
+            android:fillColor="#4A148C"
+            android:pathData="M22,16 h6 v12 h-6 z M48,16 h6 v12 h-6 z" />
+
+        <!-- Date Grid Dots (Selectable Space feel) -->
+        <group android:translateX="18" android:translateY="46">
+            <path android:fillColor="#E1BEE7" android:pathData="M0,0h8v8h-8z M16,0h8v8h-8z M32,0h8v8h-8z" />
+            <path android:fillColor="#E1BEE7" android:pathData="M0,16h8v8h-8z M16,16h8v8h-8z" />
+            <!-- Highlighted selected space/date -->
+            <path android:fillColor="#9C27B0" android:pathData="M32,16h8v8h-8z" />
+        </group>
+
+        <!-- Premium Booking Confirmation Badge -->
+        <path
+            android:fillColor="#6A1B9A"
+            android:pathData="M54,54 m-16,0 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0" />
+
+        <!-- Bold White Checkmark -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M46,54 l5,5 l11,-11 l2,2 l-13,13 l-7,-7 z" />
+
+    </group>
+
+</vector>

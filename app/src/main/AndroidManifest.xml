@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.CampusSpaceScheduler">
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".MainActivity" />
+        <activity android:name=".ResetPasswordActivity" />
+        <activity android:name=".StudentSpaceSelectionActivity" />
+        <activity android:name=".FacultySpaceSelectionActivity" />
+        <activity android:name=".ClassroomListActivity" />
+        <activity android:name=".LabListActivity" />
+        <activity android:name=".HallListActivity" />
+        <activity android:name=".StudentRoomDashboardActivity" />
+        <activity android:name=".FacultyRoomDashboardActivity" />
+        <activity android:name=".BookingFormActivity" />
+        <activity android:name=".ProfileActivity" />
+        <activity android:name=".BookingHistoryActivity" />
+        <activity android:name=".CancelRequestActivity" />
+        <activity android:name=".AvailableTimeSlotsActivity" />
+        <activity android:name=".BookingDetailsActivity" />
+    </application>
+
+</manifest>

@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Campus Space Scheduler</string>
+    <string name="student_dashboard">Student Dashboard</string>
+    <string name="classrooms">Classrooms</string>
+    <string name="labs">Labs</string>
+    <string name="halls">Halls</string>
+    <string name="faculty_dashboard">Faculty Dashboard</string>
+</resources>
