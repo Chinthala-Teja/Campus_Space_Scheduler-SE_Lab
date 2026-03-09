@@ -1,9 +1,28 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.CampusSpaceScheduler" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <item name="colorPrimary">@color/blue</item>
+    <style name="Base.Theme.CampusSpaceScheduler" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary_blue</item>
+        <item name="android:windowBackground">@color/background_dark</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="colorSurface">@color/surface_dark</item>
+        <item name="android:statusBarColor">@color/background_dark</item>
+        <item name="materialAlertDialogTheme">@style/Theme.CampusSpaceScheduler.Dialog</item>
     </style>
 
     <style name="Theme.CampusSpaceScheduler" parent="Base.Theme.CampusSpaceScheduler" />
+
+    <style name="Theme.CampusSpaceScheduler.Dialog" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="android:windowBackground">@drawable/dialog_background</item>
+        <item name="colorSurface">@color/surface_dark</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="colorPrimary">@color/primary_blue</item>
+    </style>
+
+    <style name="CustomCalendarTheme" parent="Theme.AppCompat.Light">
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:colorControlActivated">@color/accent_cyan</item>
+    </style>
 </resources>

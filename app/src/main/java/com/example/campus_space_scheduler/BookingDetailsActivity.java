@@ -2,11 +2,13 @@ package com.example.campus_space_scheduler;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.button.MaterialButton;
 
 public class BookingDetailsActivity extends AppCompatActivity {
 
@@ -16,15 +18,15 @@ public class BookingDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_booking_details);
 
         // Get views
+        ImageView buttonBack = findViewById(R.id.buttonBack);
         TextView spaceNameTextView = findViewById(R.id.textViewSpaceName);
-        TextView bookedByTextView = findViewById(R.id.textViewBookedBy);
-        TextView dateTextView = findViewById(R.id.textViewDate);
-        TextView timeSlotTextView = findViewById(R.id.textViewTimeSlot);
+        TextView statusTextView = findViewById(R.id.textViewStatus);
+        TextView dateTimeTextView = findViewById(R.id.textViewDateTime);
         TextView purposeTextView = findViewById(R.id.textViewPurpose);
         TextView descriptionTextView = findViewById(R.id.textViewDescription);
-        TextView statusTextView = findViewById(R.id.textViewStatus);
-        TextView approvedRejectedByTextView = findViewById(R.id.textViewApprovedRejectedBy);
-        Button viewLorButton = findViewById(R.id.buttonViewLor);
+        TextView bookedByTextView = findViewById(R.id.textViewBookedBy);
+        TextView approvedByTextView = findViewById(R.id.textViewApprovedBy);
+        MaterialButton buttonViewLor = findViewById(R.id.buttonViewLor);
 
         // Get data from intent
         String spaceName = getIntent().getStringExtra("SPACE_NAME");
@@ -38,39 +40,53 @@ public class BookingDetailsActivity extends AppCompatActivity {
         boolean hasLor = getIntent().getBooleanExtra("HAS_LOR", false);
 
         // Set data to views
-        spaceNameTextView.setText(spaceName);
-        bookedByTextView.setText("Booked by: " + bookedBy);
-        dateTextView.setText(date);
-        timeSlotTextView.setText(timeSlot);
-        purposeTextView.setText("Purpose: " + purpose);
-        descriptionTextView.setText("Description: " + description);
+        spaceNameTextView.setText(spaceName != null ? spaceName : "N/A");
+        statusTextView.setText(status != null ? status : "PENDING");
+        dateTimeTextView.setText((date != null ? date : "") + " | " + (timeSlot != null ? timeSlot : ""));
+        purposeTextView.setText(purpose != null ? purpose : "N/A");
+        descriptionTextView.setText(description != null ? description : "No description provided.");
+        bookedByTextView.setText(bookedBy != null ? bookedBy : "N/A");
 
-        if (description != null && !description.isEmpty()) {
-            descriptionTextView.setVisibility(View.VISIBLE);
-        } else {
-            descriptionTextView.setVisibility(View.GONE);
-        }
-
-        statusTextView.setText("Status: " + status);
+        // UI styling for status
+        updateStatusUI(status, statusTextView);
 
         // Handle conditional visibility
-        if ("Approved".equals(status)) {
-            approvedRejectedByTextView.setText("Approved by: " + approvedOrRejectedBy);
-            approvedRejectedByTextView.setVisibility(View.VISIBLE);
-        } else if ("Rejected".equals(status)) {
-            approvedRejectedByTextView.setText("Rejected by: " + approvedOrRejectedBy);
-            approvedRejectedByTextView.setVisibility(View.VISIBLE);
+        if ("Accepted".equalsIgnoreCase(status) || "Approved".equalsIgnoreCase(status)) {
+            approvedByTextView.setText("Approved by: " + (approvedOrRejectedBy != null ? approvedOrRejectedBy : "Admin"));
+            approvedByTextView.setVisibility(View.VISIBLE);
+        } else if ("Rejected".equalsIgnoreCase(status)) {
+            approvedByTextView.setText("Rejected by: " + (approvedOrRejectedBy != null ? approvedOrRejectedBy : "Admin"));
+            approvedByTextView.setVisibility(View.VISIBLE);
         } else {
-            approvedRejectedByTextView.setVisibility(View.GONE);
+            approvedByTextView.setVisibility(View.GONE);
         }
 
         if (hasLor) {
-            viewLorButton.setVisibility(View.VISIBLE);
-            viewLorButton.setOnClickListener(v -> {
-                Toast.makeText(BookingDetailsActivity.this, "Viewing LOR...", Toast.LENGTH_SHORT).show();
+            buttonViewLor.setVisibility(View.VISIBLE);
+            buttonViewLor.setOnClickListener(v -> {
+                Toast.makeText(this, "Opening LOR Document...", Toast.LENGTH_SHORT).show();
             });
         } else {
-            viewLorButton.setVisibility(View.GONE);
+            buttonViewLor.setVisibility(View.GONE);
+        }
+
+        buttonBack.setOnClickListener(v -> finish());
+    }
+
+    private void updateStatusUI(String status, TextView statusTextView) {
+        if (status == null) return;
+        
+        switch (status.toUpperCase()) {
+            case "ACCEPTED":
+            case "APPROVED":
+                statusTextView.setBackgroundResource(R.drawable.status_accepted_bg);
+                break;
+            case "REJECTED":
+                statusTextView.setBackgroundResource(R.drawable.status_rejected_bg);
+                break;
+            default:
+                statusTextView.setBackgroundResource(R.drawable.status_pending_bg);
+                break;
         }
     }
 }

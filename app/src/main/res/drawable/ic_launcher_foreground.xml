@@ -4,46 +4,7 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-
-    <!-- Design is centered in the 108x108 viewport.
-         The inner 72dp is the safe zone for adaptive icons. -->
-    <group
-        android:translateX="16"
-        android:translateY="16">
-
-        <!-- Calendar Card Body -->
-        <path
-            android:fillColor="#FFFFFF"
-            android:pathData="M12,22 h52 c4,0 7,3 7,7 v38 c0,4 -3,7 -7,7 h-52 c-4,0 -7,-3 -7,-7 v-38 c0,-4 3,-7 7,-7 z" />
-
-        <!-- Calendar Purple Header -->
-        <path
-            android:fillColor="#6A1B9A"
-            android:pathData="M12,22 h52 c4,0 7,0 7,6 v10 h-66 v-10 c0,-6 3,-6 7,-6 z" />
-
-        <!-- Calendar Ring Details -->
-        <path
-            android:fillColor="#4A148C"
-            android:pathData="M22,16 h6 v12 h-6 z M48,16 h6 v12 h-6 z" />
-
-        <!-- Date Grid Dots (Selectable Space feel) -->
-        <group android:translateX="18" android:translateY="46">
-            <path android:fillColor="#E1BEE7" android:pathData="M0,0h8v8h-8z M16,0h8v8h-8z M32,0h8v8h-8z" />
-            <path android:fillColor="#E1BEE7" android:pathData="M0,16h8v8h-8z M16,16h8v8h-8z" />
-            <!-- Highlighted selected space/date -->
-            <path android:fillColor="#9C27B0" android:pathData="M32,16h8v8h-8z" />
-        </group>
-
-        <!-- Premium Booking Confirmation Badge -->
-        <path
-            android:fillColor="#6A1B9A"
-            android:pathData="M54,54 m-16,0 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0" />
-
-        <!-- Bold White Checkmark -->
-        <path
-            android:fillColor="#FFFFFF"
-            android:pathData="M46,54 l5,5 l11,-11 l2,2 l-13,13 l-7,-7 z" />
-
-    </group>
-
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M65.3,45.828l3.8,-6.6c0.2,-0.4 0.1,-0.9 -0.3,-1.1c-0.4,-0.2 -0.9,-0.1 -1.1,0.3l-3.9,6.7c-2.8,-1.4 -6.1,-2.2 -9.8,-2.2c-3.7,0 -7,0.8 -9.8,2.2l-3.9,-6.7c-0.2,-0.4 -0.7,-0.5 -1.1,-0.3c-0.4,0.2 -0.5,0.7 -0.3,1.1l3.8,6.6C36,49.528 31.4,56.028 31,63.928h38C68.6,56.028 64,49.528 65.3,45.828zM43.4,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2c-0.3,-0.7 -0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C45.3,56.528 44.5,57.328 43.4,57.328L43.4,57.328zM64.6,57.328c-0.8,0 -1.5,-0.5 -1.8,-1.2c-0.3,-0.7 -0.1,-1.5 0.4,-2.1c0.5,-0.5 1.4,-0.7 2.1,-0.4c0.7,0.3 1.2,1 1.2,1.8C66.5,56.528 65.6,57.328 64.6,57.328L64.6,57.328z" />
 </vector>

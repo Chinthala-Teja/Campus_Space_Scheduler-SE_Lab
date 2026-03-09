@@ -34,24 +34,36 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
     @Override
     public void onBindViewHolder(@NonNull BookingViewHolder holder, int position) {
         Booking booking = bookingList.get(position);
+        
+        if (holder.textViewSpaceName != null) {
+            holder.textViewSpaceName.setText(booking.getPurpose()); // Using purpose as a placeholder if space name is missing in model
+        }
+        
         holder.textViewDate.setText(booking.getDate());
         holder.textViewTimeSlot.setText(booking.getTimeSlot());
         holder.textViewPurpose.setText("Purpose: " + booking.getPurpose());
-        holder.textViewStatus.setText(booking.getStatus());
+        
+        String status = booking.getStatus();
+        holder.textViewStatus.setText(status != null ? status.toUpperCase() : "PENDING");
 
         holder.itemView.setOnClickListener(v -> listener.onItemClick(booking));
 
-        switch (booking.getStatus()) {
-            case "Accepted":
-            case "Booked":
-                holder.textViewStatus.setBackgroundColor(0xFF4CAF50); // Green
-                break;
-            case "Pending":
-                holder.textViewStatus.setBackgroundColor(0xFFFFC107); // Amber
-                break;
-            default:
-                holder.textViewStatus.setBackgroundColor(0xFF757575); // Grey
-                break;
+        // UI styling for status
+        if (status != null) {
+            switch (status.toLowerCase()) {
+                case "accepted":
+                case "booked":
+                case "approved":
+                    holder.textViewStatus.setBackgroundResource(R.drawable.status_accepted_bg);
+                    break;
+                case "rejected":
+                    holder.textViewStatus.setBackgroundResource(R.drawable.status_rejected_bg);
+                    break;
+                case "pending":
+                default:
+                    holder.textViewStatus.setBackgroundResource(R.drawable.status_pending_bg);
+                    break;
+            }
         }
     }
 
@@ -61,10 +73,11 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
     }
 
     static class BookingViewHolder extends RecyclerView.ViewHolder {
-        TextView textViewDate, textViewTimeSlot, textViewPurpose, textViewStatus;
+        TextView textViewSpaceName, textViewDate, textViewTimeSlot, textViewPurpose, textViewStatus;
 
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
+            textViewSpaceName = itemView.findViewById(R.id.textViewSpaceName);
             textViewDate = itemView.findViewById(R.id.textViewDate);
             textViewTimeSlot = itemView.findViewById(R.id.textViewTimeSlot);
             textViewPurpose = itemView.findViewById(R.id.textViewPurpose);
