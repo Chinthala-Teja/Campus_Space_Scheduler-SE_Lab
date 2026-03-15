@@ -34,7 +34,7 @@
         <activity android:name=".ProfileActivity" />
         <activity android:name=".BookingHistoryActivity" />
         <activity android:name=".CancelRequestActivity" />
-        <activity android:name=".AvailableTimeSlotsActivity" />
+        <activity android:name=".booking_user.AvailableTimeSlotsActivity" />
         <activity android:name=".BookingDetailsActivity" />
     </application>
 

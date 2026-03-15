@@ -6,4 +6,5 @@
     <string name="halls">Halls</string>
     <string name="faculty_dashboard">Faculty Dashboard</string>
     <string name="default_web_client_id">912074136407-oqk8d1b622381tblfdqum3u504npjop6.apps.googleusercontent.com</string>
+    <string name="lor_instructions">Please upload your Letter of Recommendation (LOR) to Google Drive and paste the public URL here.</string>
 </resources>

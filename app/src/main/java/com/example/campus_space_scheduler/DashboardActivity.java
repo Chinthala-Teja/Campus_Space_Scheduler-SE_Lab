@@ -15,7 +15,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.campus_space_scheduler.booking_user.AvailableTimeSlotsActivity;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,6 +46,7 @@ public class DashboardActivity extends AppCompatActivity {
     private Map<String, String> spaceIdMap; // Maps roomName to spaceId
     private Map<String, String> spaceTypeMap; // Maps roomName to space type (role)
     private ArrayAdapter<String> adapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     // Live Status Views
     private View cardLiveStatus;
@@ -71,6 +74,7 @@ public class DashboardActivity extends AppCompatActivity {
         userRole = getIntent().getStringExtra("ROLE");
         Log.d(TAG, "User Role in Dashboard: " + userRole);
 
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         Spinner spinnerWorkspace = findViewById(R.id.spinnerWorkspace);
         CalendarView calendarView = findViewById(R.id.calendarView);
         Button buttonCancelRequest = findViewById(R.id.buttonCancelRequest);
@@ -93,6 +97,15 @@ public class DashboardActivity extends AppCompatActivity {
 
         spacesRef = FirebaseDatabase.getInstance().getReference("spaces");
         schedulesRef = FirebaseDatabase.getInstance().getReference("schedules");
+
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            fetchSpaces();
+            if (currentSelectedSpaceId != null) {
+                observeLiveStatus(currentSelectedSpaceId);
+            } else {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         fetchSpaces();
 
@@ -215,6 +228,7 @@ public class DashboardActivity extends AppCompatActivity {
 
                 if (currentSchedule == null) {
                     updateStatusUI(true, "AVAILABLE", "No bookings for today");
+                    swipeRefreshLayout.setRefreshing(false);
                     return;
                 }
 
@@ -268,11 +282,13 @@ public class DashboardActivity extends AppCompatActivity {
                         updateStatusUI(true, "AVAILABLE", "");
                         break;
                 }
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 cardLiveStatus.setVisibility(View.GONE);
+                swipeRefreshLayout.setRefreshing(false);
             }
         };
 
@@ -329,11 +345,13 @@ public class DashboardActivity extends AppCompatActivity {
                 }
 
                 adapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e(TAG, "Database error: " + error.getMessage());
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }

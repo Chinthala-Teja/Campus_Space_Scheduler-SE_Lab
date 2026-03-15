@@ -1,4 +1,4 @@
-package com.example.campus_space_scheduler;
+package com.example.campus_space_scheduler.booking_user;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +7,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.campus_space_scheduler.R;
 
 import java.util.List;
 
@@ -36,12 +38,12 @@ public class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.BookingV
         Booking booking = bookingList.get(position);
         
         if (holder.textViewSpaceName != null) {
-            holder.textViewSpaceName.setText(booking.getPurpose()); // Using purpose as a placeholder if space name is missing in model
+            holder.textViewSpaceName.setText(booking.getSpaceName() != null ? booking.getSpaceName() : "Loading...");
         }
         
-        holder.textViewDate.setText(booking.getDate());
-        holder.textViewTimeSlot.setText(booking.getTimeSlot());
-        holder.textViewPurpose.setText("Purpose: " + booking.getPurpose());
+        holder.textViewDate.setText(booking.getDate() != null ? booking.getDate() : "");
+        holder.textViewTimeSlot.setText(booking.getTimeSlot() != null ? booking.getTimeSlot() : "");
+        holder.textViewPurpose.setText("Purpose: " + (booking.getPurpose() != null ? booking.getPurpose() : "N/A"));
         
         String status = booking.getStatus();
         holder.textViewStatus.setText(status != null ? status.toUpperCase() : "PENDING");

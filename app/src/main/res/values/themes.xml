@@ -20,6 +20,10 @@
         <item name="colorPrimary">@color/primary_blue</item>
     </style>
 
+    <style name="Theme.CampusSpaceScheduler.Dialog.Custom" parent="Theme.CampusSpaceScheduler.Dialog">
+        <!-- Add any custom attributes if needed, or just keep it as a child of the base dialog theme -->
+    </style>
+
     <style name="CustomCalendarTheme" parent="Theme.AppCompat.Light">
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>

@@ -107,12 +107,20 @@
                             android:textColor="@color/white" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/lor_instructions"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/textInputLayoutLorUrl"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="4dp"
                         android:hint="LOR URL"
                         android:textColorHint="@color/text_secondary"
                         app:boxStrokeColor="@color/primary_blue"

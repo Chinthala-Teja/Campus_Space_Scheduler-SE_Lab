@@ -1,11 +1,12 @@
 package com.example.campus_space_scheduler;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,8 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 public class ProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "ProfileActivity";
-    private TextView nameTextView, emailTextView, phoneTextView, rollNumberTextView, roleTextView;
-    private LinearLayout rollNumberSection;
+    private TextView nameTextView, emailTextView, phoneTextView, roleTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,16 +36,14 @@ public class ProfileActivity extends AppCompatActivity {
         nameTextView = findViewById(R.id.textViewNameValue);
         emailTextView = findViewById(R.id.textViewEmailValue);
         phoneTextView = findViewById(R.id.textViewPhoneNumberValue);
-        rollNumberTextView = findViewById(R.id.textViewRollNumberValue);
         roleTextView = findViewById(R.id.textViewRoleValue);
-        rollNumberSection = findViewById(R.id.rollNumberSection);
         
         MaterialButton logout = findViewById(R.id.buttonLogout);
         ImageView buttonBack = findViewById(R.id.buttonBack);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            fetchUserProfile(currentUser.getEmail());
+            fetchUserProfile(currentUser.getUid());
         } else {
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
             finish();
@@ -58,6 +56,8 @@ public class ProfileActivity extends AppCompatActivity {
         if (logout != null) {
             logout.setOnClickListener(v -> {
                 FirebaseAuth.getInstance().signOut();
+                // Clear session time on logout
+                getSharedPreferences("AppPrefs", MODE_PRIVATE).edit().remove("last_active_time").apply();
                 Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
@@ -66,31 +66,32 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void fetchUserProfile(String currentUserEmail) {
-        if (currentUserEmail == null) return;
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Record the time when the user leaves the activity
+        getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                .edit()
+                .putLong("last_active_time", System.currentTimeMillis())
+                .apply();
+    }
 
-        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users");
+    private void fetchUserProfile(String uid) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(uid);
         
-        usersRef.orderByChild("emailId").equalTo(currentUserEmail)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists() && snapshot.hasChildren()) {
-                    DataSnapshot userSnapshot = snapshot.getChildren().iterator().next();
-                    
-                    String name = userSnapshot.child("name").getValue(String.class);
-                    
-                    String email = userSnapshot.child("emailId").getValue(String.class);
-                    if (email == null) email = userSnapshot.child("email").getValue(String.class);
+                if (snapshot.exists()) {
+                    String name = snapshot.child("name").getValue(String.class);
+                    String email = snapshot.child("emailId").getValue(String.class);
+                    if (email == null) email = snapshot.child("email").getValue(String.class);
 
-                    String phone = userSnapshot.child("phonenumber").getValue(String.class);
-                    if (phone == null) phone = userSnapshot.child("phoneNumber").getValue(String.class);
-                    if (phone == null) phone = userSnapshot.child("phone").getValue(String.class);
+                    String phone = snapshot.child("phonenumber").getValue(String.class);
+                    if (phone == null) phone = snapshot.child("phoneNumber").getValue(String.class);
+                    if (phone == null) phone = snapshot.child("phone").getValue(String.class);
 
-                    String rollNumber = userSnapshot.child("rollnumber").getValue(String.class);
-                    if (rollNumber == null) rollNumber = userSnapshot.child("rollNumber").getValue(String.class);
-
-                    String role = userSnapshot.child("role").getValue(String.class);
+                    String role = snapshot.child("role").getValue(String.class);
 
                     // Update UI
                     nameTextView.setText(name != null ? name : "N/A");
@@ -100,16 +101,8 @@ public class ProfileActivity extends AppCompatActivity {
                     if (roleTextView != null) {
                         roleTextView.setText(role != null ? role : "N/A");
                     }
-
-                    // Show roll number only for students
-                    if (role != null && role.equalsIgnoreCase("student")) {
-                        rollNumberSection.setVisibility(View.VISIBLE);
-                        rollNumberTextView.setText(rollNumber != null ? rollNumber : "N/A");
-                    } else {
-                        rollNumberSection.setVisibility(View.GONE);
-                    }
                 } else {
-                    Log.d(TAG, "No user data found for: " + currentUserEmail);
+                    Log.d(TAG, "No user data found for UID: " + uid);
                     Toast.makeText(ProfileActivity.this, "Profile not found", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -117,6 +110,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e(TAG, "Database error: " + error.getMessage());
+                Toast.makeText(ProfileActivity.this, "Failed to load profile", Toast.LENGTH_SHORT).show();
             }
         });
     }

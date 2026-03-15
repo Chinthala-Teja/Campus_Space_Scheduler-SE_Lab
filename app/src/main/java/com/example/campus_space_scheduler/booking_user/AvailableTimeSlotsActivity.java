@@ -1,23 +1,22 @@
-package com.example.campus_space_scheduler;
+package com.example.campus_space_scheduler.booking_user;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.campus_space_scheduler.BookingFormActivity;
+import com.example.campus_space_scheduler.R;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
@@ -120,6 +119,7 @@ public class AvailableTimeSlotsActivity extends AppCompatActivity {
             String startStr = slotSnapshot.child("start").getValue(String.class);
             String endStr = slotSnapshot.child("end").getValue(String.class);
 
+            // ONLY show slots that are explicitly "AVAILABLE"
             if (status != null && status.equalsIgnoreCase("AVAILABLE") && startStr != null && endStr != null) {
                 int startTime = Integer.parseInt(startStr.replace(":", ""));
                 
@@ -143,6 +143,7 @@ public class AvailableTimeSlotsActivity extends AppCompatActivity {
 
     private void addSlotButton(String start, String end, String scheduleId) {
         String timeLabel = start + " - " + end;
+        String slotStartValue = start.replace(":", "");
         
         MaterialButton slotButton = new MaterialButton(this, null, com.google.android.material.R.attr.materialButtonStyle);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -165,6 +166,7 @@ public class AvailableTimeSlotsActivity extends AppCompatActivity {
             intent.putExtra("SPACE_NAME", spaceName);
             intent.putExtra("DATE", date);
             intent.putExtra("TIME_SLOT", timeLabel);
+            intent.putExtra("SLOT_START", slotStartValue);
             intent.putExtra("ROLE", role);
             intent.putExtra("SPACE_TYPE", spaceType);
             intent.putExtra("SCHEDULE_ID", scheduleId);
