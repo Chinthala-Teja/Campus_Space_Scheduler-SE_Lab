@@ -9,13 +9,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.campus_space_scheduler.databinding.ActivityLoginBinding;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,40 +28,39 @@ import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private static final int RC_SIGN_IN = 9001;
+    private ActivityLoginBinding binding;
+    private FirebaseAuth auth;
+    private GoogleSignInClient googleClient;
+
+    private static final int RC_GOOGLE = 100;
     private static final String TAG = "LoginActivity";
-    private GoogleSignInClient mGoogleSignInClient;
-    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
 
-        mAuth = FirebaseAuth.getInstance();
+        binding = ActivityLoginBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        // Configure Google Sign-In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
+        auth = FirebaseAuth.getInstance();
 
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        GoogleSignInOptions options =
+                new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestIdToken(getString(R.string.default_web_client_id))
+                        .requestEmail()
+                        .build();
 
-        MaterialButton googleLoginButton = findViewById(R.id.buttonLoginViaGoogle);
-        if (googleLoginButton != null) {
-            googleLoginButton.setOnClickListener(v -> signIn());
-        }
+        googleClient = GoogleSignIn.getClient(this, options);
+
+        // Map the button from your layout
+        binding.buttonLoginViaGoogle.setOnClickListener(v -> googleLogin());
     }
 
-    private void signIn() {
-        Log.d(TAG, "signIn: Initiating sign in process");
-        mAuth.signOut();
-        mGoogleSignInClient.signOut().addOnCompleteListener(this, task -> {
-            mGoogleSignInClient.revokeAccess().addOnCompleteListener(this, task2 -> {
-                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-                startActivityForResult(signInIntent, RC_SIGN_IN);
-            });
+    private void googleLogin() {
+        Log.d(TAG, "googleLogin: Initiating");
+        googleClient.signOut().addOnCompleteListener(this, task -> {
+            Intent signInIntent = googleClient.getSignInIntent();
+            startActivityForResult(signInIntent, RC_GOOGLE);
         });
     }
 
@@ -69,93 +68,85 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RC_SIGN_IN) {
+        if (requestCode == RC_GOOGLE) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 if (account != null) {
-                    Log.d(TAG, "Google Sign-In successful for: " + account.getEmail());
                     firebaseAuthWithGoogle(account.getIdToken());
                 }
             } catch (ApiException e) {
-                Log.e(TAG, "Google sign in failed. Status Code: " + e.getStatusCode() + " Message: " + e.getMessage());
-                Toast.makeText(this, "Google sign in failed: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Google login failed. Status Code: " + e.getStatusCode());
+                toast("Google login failed (Error " + e.getStatusCode() + ")");
             }
         }
     }
 
     private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        Log.d(TAG, "Firebase Auth successful for: " + (user != null ? user.getUid() : "null"));
-                        verifyUserInDatabase(user);
-                    } else {
-                        Log.e(TAG, "Firebase Auth Failed", task.getException());
-                        Toast.makeText(this, "Firebase Auth Failed.", Toast.LENGTH_SHORT).show();
-                    }
+        auth.signInWithCredential(credential)
+                .addOnSuccessListener(this, result -> verifyUser(result.getUser()))
+                .addOnFailureListener(this, e -> {
+                    Log.e(TAG, "Firebase Auth failed", e);
+                    toast("Google auth failed");
                 });
     }
 
-    private void verifyUserInDatabase(FirebaseUser user) {
+    private void verifyUser(FirebaseUser user) {
         if (user == null) return;
 
-        String uid = user.getUid();
         String email = user.getEmail();
-        Log.d(TAG, "Verifying user in database via UID: " + uid);
+        // Restriction 1: Must end with @nitc.ac.in
+        if (email == null || !email.endsWith("@nitc.ac.in")) {
+            toast("Please use your NITC email (@nitc.ac.in)");
+            signOutUser();
+            return;
+        }
 
-        if (email != null && email.endsWith("@nitc.ac.in")) {
-            // Access the specific user node directly using UID
-            DatabaseReference userNodeRef = FirebaseDatabase.getInstance().getReference("users").child(uid);
-            
-            userNodeRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    Log.d(TAG, "Database check returned. Snapshot exists: " + snapshot.exists());
-                    if (snapshot.exists()) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(user.getUid());
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // Restriction 2: Must exist in database
+                if (snapshot.exists()) {
+                    // Restriction 3: isBlocked must be false
+                    Boolean isBlocked = snapshot.child("isBlocked").getValue(Boolean.class);
+                    if (isBlocked != null && isBlocked) {
+                        toast("Your account is blocked");
+                        signOutUser();
+                    } else {
                         String role = snapshot.child("role").getValue(String.class);
                         if (role == null) role = "student";
-                        
-                        Boolean isBlocked = snapshot.child("isBlocked").getValue(Boolean.class);
-                        Log.d(TAG, "User profile loaded. Role: " + role + ", isBlocked: " + isBlocked);
-                        
-                        if (isBlocked != null && isBlocked) {
-                            Toast.makeText(LoginActivity.this, "Your account is blocked.", Toast.LENGTH_LONG).show();
-                            mAuth.signOut();
-                            mGoogleSignInClient.signOut();
-                        } else {
-                            Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-                            navigateToDashboard(role);
-                        }
-                    } else {
-                        Log.w(TAG, "No user record found in database for UID: " + uid);
-                        Toast.makeText(LoginActivity.this, "User not registered in database.", Toast.LENGTH_LONG).show();
-                        mAuth.signOut();
-                        mGoogleSignInClient.signOut();
+
+                        toast("Welcome "+ user.getDisplayName());
+                        navigateToDashboard(role);
                     }
+                } else {
+                    toast("User not authorized. Contact Admin.");
+                    signOutUser();
                 }
+            }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e(TAG, "Database query FAILED (check rules). Error: " + error.getMessage());
-                    Toast.makeText(LoginActivity.this, "Database error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                toast("Database error: " + error.getMessage());
+            }
+        });
+    }
 
-        } else {
-            Log.w(TAG, "Non-NITC email attempted login: " + email);
-            Toast.makeText(this, "Please use your NITC Gmail", Toast.LENGTH_LONG).show();
-            mAuth.signOut();
-            mGoogleSignInClient.signOut();
-        }
+    private void signOutUser() {
+        auth.signOut();
+        googleClient.signOut();
     }
 
     private void navigateToDashboard(String role) {
-        Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+        Intent intent = new Intent(this, DashboardActivity.class);
         intent.putExtra("ROLE", role);
         startActivity(intent);
         finish();
+    }
+
+    private void toast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 }

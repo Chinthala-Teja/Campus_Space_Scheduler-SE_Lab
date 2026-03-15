@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "912074136407-7tf3tu3m5taoeiimfk24rrl7i9cev51t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.campus_space_scheduler",
+            "certificate_hash": "1ffcd290c30f6aa76ff840f1659a57ebd56776a4"
+          }
+        },
+        {
           "client_id": "912074136407-s67afcu8ip1r18j37920s1r98dtg79h9.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
