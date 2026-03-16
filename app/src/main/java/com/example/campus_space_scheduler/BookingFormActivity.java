@@ -201,6 +201,7 @@ public class BookingFormActivity extends AppCompatActivity {
         data.put("timeSlot", timeSlot);
         data.put("spaceName", spaceName);
         data.put("status", "Pending");
+        data.put("approvedBy", ""); // Default empty for new requests
         
         data.put("facultyInchargeApproval", false);
         data.put("hodApproval", false);

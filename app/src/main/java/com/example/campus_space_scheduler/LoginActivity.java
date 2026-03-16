@@ -111,7 +111,7 @@ public class LoginActivity extends AppCompatActivity {
                 // Restriction 2: Must exist in database
                 if (snapshot.exists()) {
                     // Restriction 3: isBlocked must be false
-                    Boolean isBlocked = snapshot.child("isBlocked").getValue(Boolean.class);
+                    Boolean isBlocked = snapshot.child("blocked").getValue(Boolean.class);
                     if (isBlocked != null && isBlocked) {
                         toast("Your account is blocked");
                         signOutUser();

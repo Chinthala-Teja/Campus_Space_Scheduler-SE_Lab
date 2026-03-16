@@ -18,6 +18,7 @@ public class Booking {
     private String remarks; 
     private String actionBy; 
     private String slotStart; // Format: 1030 for 10:30 AM
+    private String approvedBy; // New field: stores UID of authority
 
     public Booking() {
         // Required for Firebase
@@ -74,4 +75,7 @@ public class Booking {
 
     public String getSlotStart() { return slotStart; }
     public void setSlotStart(String slotStart) { this.slotStart = slotStart; }
+
+    public String getApprovedBy() { return approvedBy; }
+    public void setApprovedBy(String approvedBy) { this.approvedBy = approvedBy; }
 }

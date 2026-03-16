@@ -64,6 +64,7 @@ public class BookingDetailsActivity extends AppCompatActivity {
         boolean hasLor = getIntent().getBooleanExtra("HAS_LOR", false);
         String lorUrl = getIntent().getStringExtra("LOR_UPLOAD");
         boolean showCancelButton = getIntent().getBooleanExtra("SHOW_CANCEL_BUTTON", false);
+        String approvedByUid = getIntent().getStringExtra("APPROVED_BY");
 
         // Set initial data to views
         spaceNameTextView.setText(spaceName != null ? spaceName : "N/A");
@@ -74,7 +75,7 @@ public class BookingDetailsActivity extends AppCompatActivity {
         requestedOnTextView.setText(requestedOn != null ? requestedOn : "N/A");
         
         if (bookedById != null) {
-            fetchUserName(bookedById);
+            fetchUserName(bookedById, bookedByTextView, null);
         } else {
             bookedByTextView.setText("N/A");
         }
@@ -84,9 +85,17 @@ public class BookingDetailsActivity extends AppCompatActivity {
 
         // Handle Approval/Rejection and Remarks
         if (status != null && !status.equalsIgnoreCase("Pending")) {
-            String label = status.equalsIgnoreCase("Approved") || status.equalsIgnoreCase("Accepted") ? "Approved by: " : "Rejected by: ";
-            approvedByTextView.setText(label + (actionBy != null ? actionBy : "Authority"));
-            approvedByTextView.setVisibility(View.VISIBLE);
+            String label = (status.equalsIgnoreCase("Approved") || status.equalsIgnoreCase("Accepted")) ? "Approved by: " : "Rejected by: ";
+            
+            if (approvedByUid != null && !approvedByUid.isEmpty()) {
+                fetchUserName(approvedByUid, approvedByTextView, label);
+            } else if (actionBy != null) {
+                approvedByTextView.setText(label + actionBy);
+                approvedByTextView.setVisibility(View.VISIBLE);
+            } else {
+                approvedByTextView.setText(label + "Authority");
+                approvedByTextView.setVisibility(View.VISIBLE);
+            }
 
             if (remarks != null && !remarks.isEmpty()) {
                 textViewRemarks.setText("Remarks: " + remarks);
@@ -191,7 +200,7 @@ public class BookingDetailsActivity extends AppCompatActivity {
         });
     }
 
-    private void fetchUserName(String uid) {
+    private void fetchUserName(String uid, TextView textView, String prefix) {
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(uid);
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -202,23 +211,22 @@ public class BookingDetailsActivity extends AppCompatActivity {
                     if (rollNumber == null) rollNumber = snapshot.child("rollnumber").getValue(String.class);
                     if (rollNumber == null) rollNumber = snapshot.child("rollNumber").getValue(String.class);
                     
-                    if (name != null) {
-                        if (rollNumber != null && !rollNumber.isEmpty()) {
-                            bookedByTextView.setText(name + " (" + rollNumber + ")");
-                        } else {
-                            bookedByTextView.setText(name);
-                        }
-                    } else {
-                        bookedByTextView.setText("Unknown User");
+                    String displayStr = (name != null) ? name : "Unknown User";
+                    if (rollNumber != null && !rollNumber.isEmpty()) {
+                        displayStr += " (" + rollNumber + ")";
                     }
+                    
+                    textView.setText((prefix != null ? prefix : "") + displayStr);
+                    textView.setVisibility(View.VISIBLE);
                 } else {
-                    bookedByTextView.setText("Unknown User");
+                    textView.setText((prefix != null ? prefix : "") + "Unknown User");
+                    textView.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                bookedByTextView.setText("Error loading user info");
+                textView.setText("Error loading user info");
             }
         });
     }
