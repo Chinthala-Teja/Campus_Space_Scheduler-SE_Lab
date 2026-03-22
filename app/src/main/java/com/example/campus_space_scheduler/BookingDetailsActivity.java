@@ -77,7 +77,7 @@ public class BookingDetailsActivity extends AppCompatActivity {
         if (bookedById != null) {
             fetchUserName(bookedById, bookedByTextView, null);
         } else {
-            bookedByTextView.setText("N/A");
+            bookedByTextView.setText(R.string.unknown_user);
         }
 
         // UI styling for status
@@ -85,10 +85,18 @@ public class BookingDetailsActivity extends AppCompatActivity {
 
         // Handle Approval/Rejection and Remarks
         if (status != null && !status.equalsIgnoreCase("Pending")) {
-            String label = (status.equalsIgnoreCase("Approved") || status.equalsIgnoreCase("Accepted")) ? "Approved by: " : "Rejected by: ";
+            boolean isApproved = status.equalsIgnoreCase("Approved") || status.equalsIgnoreCase("Accepted");
+            String label = getString(isApproved ? R.string.approved_by_label : R.string.rejected_by_label, "");
             
             if (approvedByUid != null && !approvedByUid.isEmpty()) {
-                fetchUserName(approvedByUid, approvedByTextView, label);
+                // If the approvedBy value looks like a UID (no spaces, long), fetch it
+                if (approvedByUid.length() > 15 && !approvedByUid.contains(" ")) {
+                    fetchUserName(approvedByUid, approvedByTextView, label);
+                } else {
+                    // It might be a name already
+                    approvedByTextView.setText(label + approvedByUid);
+                    approvedByTextView.setVisibility(View.VISIBLE);
+                }
             } else if (actionBy != null) {
                 approvedByTextView.setText(label + actionBy);
                 approvedByTextView.setVisibility(View.VISIBLE);
@@ -98,7 +106,8 @@ public class BookingDetailsActivity extends AppCompatActivity {
             }
 
             if (remarks != null && !remarks.isEmpty()) {
-                textViewRemarks.setText("Remarks: " + remarks);
+                String remarksText = getString(isApproved ? R.string.remarks_label : R.string.rejection_reason, remarks);
+                textViewRemarks.setText(remarksText);
                 textViewRemarks.setVisibility(View.VISIBLE);
             } else {
                 textViewRemarks.setVisibility(View.GONE);
@@ -115,7 +124,7 @@ public class BookingDetailsActivity extends AppCompatActivity {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(lorUrl));
                     startActivity(browserIntent);
                 } catch (Exception e) {
-                    Toast.makeText(this, "Invalid LOR Link", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.invalid_lor_link, Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
@@ -185,18 +194,18 @@ public class BookingDetailsActivity extends AppCompatActivity {
                         }
                     }
                     
-                    Toast.makeText(BookingDetailsActivity.this, "Booking Cancelled Successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BookingDetailsActivity.this, R.string.booking_cancelled_successfully, Toast.LENGTH_SHORT).show();
                     finish();
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
                     Log.e(TAG, "Cancel failed: " + error.getMessage());
-                    Toast.makeText(BookingDetailsActivity.this, "Failed to update schedule", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BookingDetailsActivity.this, R.string.failed_update_schedule, Toast.LENGTH_SHORT).show();
                 }
             });
         }).addOnFailureListener(e -> {
-            Toast.makeText(BookingDetailsActivity.this, "Failed to cancel booking", Toast.LENGTH_SHORT).show();
+            Toast.makeText(BookingDetailsActivity.this, R.string.failed_cancel_booking, Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -206,27 +215,32 @@ public class BookingDetailsActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
+                    // Try multiple possible name fields
                     String name = snapshot.child("name").getValue(String.class);
+                    if (name == null) name = snapshot.child("displayName").getValue(String.class);
+                    if (name == null) name = snapshot.child("full_name").getValue(String.class);
+                    
                     String rollNumber = snapshot.child("roolno").getValue(String.class);
                     if (rollNumber == null) rollNumber = snapshot.child("rollnumber").getValue(String.class);
                     if (rollNumber == null) rollNumber = snapshot.child("rollNumber").getValue(String.class);
                     
-                    String displayStr = (name != null) ? name : "Unknown User";
-                    if (rollNumber != null && !rollNumber.isEmpty()) {
+                    String displayStr = (name != null) ? name : "User";
+                    if (rollNumber != null && !rollNumber.isEmpty() && !rollNumber.equals("null")) {
                         displayStr += " (" + rollNumber + ")";
                     }
                     
                     textView.setText((prefix != null ? prefix : "") + displayStr);
                     textView.setVisibility(View.VISIBLE);
                 } else {
-                    textView.setText((prefix != null ? prefix : "") + "Unknown User");
+                    // If UID not found in users, show the UID itself or generic label
+                    textView.setText((prefix != null ? prefix : "") + "Authority");
                     textView.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                textView.setText("Error loading user info");
+                textView.setText(R.string.error_loading_info);
             }
         });
     }

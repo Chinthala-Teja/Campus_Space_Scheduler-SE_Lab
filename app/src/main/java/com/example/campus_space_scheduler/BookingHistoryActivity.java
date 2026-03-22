@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +39,12 @@ public class BookingHistoryActivity extends AppCompatActivity implements Booking
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booking_history);
+
+        // Header and back button
+        ImageView buttonBack = findViewById(R.id.buttonBack);
+        if (buttonBack != null) {
+            buttonBack.setOnClickListener(v -> finish());
+        }
 
         recyclerViewHistory = findViewById(R.id.recyclerViewHistory);
         progressBar = findViewById(R.id.progressBar); 
@@ -115,7 +122,6 @@ public class BookingHistoryActivity extends AppCompatActivity implements Booking
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     String name = snapshot.child("name").getValue(String.class);
-                    // Name is handled in BookingDetailsActivity via bookedById
                 }
             }
 
@@ -192,6 +198,7 @@ public class BookingHistoryActivity extends AppCompatActivity implements Booking
         intent.putExtra("LOR_UPLOAD", booking.getLorUpload());
         intent.putExtra("REMARKS", booking.getRemarks());
         intent.putExtra("ACTION_BY", booking.getActionBy());
+        intent.putExtra("APPROVED_BY", booking.getApprovedBy());
         
         // Requested time (when the booking was made)
         String reqDate = "";

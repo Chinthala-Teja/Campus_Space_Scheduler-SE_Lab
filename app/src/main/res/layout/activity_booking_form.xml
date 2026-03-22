@@ -121,7 +121,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:hint="LOR URL"
+                        android:hint="LOR URL *"
                         android:textColorHint="@color/text_secondary"
                         app:boxStrokeColor="@color/primary_blue"
                         app:hintTextColor="@color/primary_blue">

@@ -209,8 +209,9 @@ public class BookingFormActivity extends AppCompatActivity {
         bookingsRef.child(bookingId).setValue(data).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Toast.makeText(this, "Booking Request Sent", Toast.LENGTH_SHORT).show();
+                // Close the form and the slots page to return to Dashboard
                 Intent intent = new Intent(this, DashboardActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.putExtra("ROLE", userRole);
                 startActivity(intent);
                 finish();

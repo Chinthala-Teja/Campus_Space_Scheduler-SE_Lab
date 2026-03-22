@@ -3,12 +3,14 @@ package com.example.campus_space_scheduler.booking_user;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.campus_space_scheduler.BookingFormActivity;
 import com.example.campus_space_scheduler.R;
@@ -25,7 +27,6 @@ import java.util.Locale;
 
 public class AvailableTimeSlotsActivity extends AppCompatActivity {
 
-    private static final String TAG = "AvailableTimeSlots";
     private String spaceId, spaceName, date, role, spaceType;
     private LinearLayout slotsContainer;
     private ProgressBar progressBar;
@@ -43,6 +44,7 @@ public class AvailableTimeSlotsActivity extends AppCompatActivity {
         role = getIntent().getStringExtra("ROLE");
         spaceType = getIntent().getStringExtra("SPACE_TYPE");
 
+        ImageView buttonBack = findViewById(R.id.buttonBack);
         TextView spaceNameTextView = findViewById(R.id.textViewSpaceName);
         TextView dateTextView = findViewById(R.id.textViewDate);
         slotsContainer = findViewById(R.id.linearLayoutSlotsContainer);
@@ -51,6 +53,10 @@ public class AvailableTimeSlotsActivity extends AppCompatActivity {
 
         spaceNameTextView.setText(spaceName);
         dateTextView.setText(date);
+
+        if (buttonBack != null) {
+            buttonBack.setOnClickListener(v -> finish());
+        }
 
         schedulesRef = FirebaseDatabase.getInstance().getReference("schedules");
 
@@ -103,7 +109,7 @@ public class AvailableTimeSlotsActivity extends AppCompatActivity {
 
         if (!foundSchedule) {
             noSlotsTextView.setVisibility(View.VISIBLE);
-            noSlotsTextView.setText("No schedule found for " + date);
+            noSlotsTextView.setText(getString(R.string.no_schedule_found, date));
         }
     }
 
@@ -137,7 +143,7 @@ public class AvailableTimeSlotsActivity extends AppCompatActivity {
 
         if (!hasAvailableSlots) {
             noSlotsTextView.setVisibility(View.VISIBLE);
-            noSlotsTextView.setText("No available slots for the selected time.");
+            noSlotsTextView.setText(getString(R.string.no_available_slots));
         }
     }
 
@@ -145,7 +151,8 @@ public class AvailableTimeSlotsActivity extends AppCompatActivity {
         String timeLabel = start + " - " + end;
         String slotStartValue = start.replace(":", "");
         
-        MaterialButton slotButton = new MaterialButton(this, null, com.google.android.material.R.attr.materialButtonStyle);
+        MaterialButton slotButton = new MaterialButton(this);
+        
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -155,10 +162,11 @@ public class AvailableTimeSlotsActivity extends AppCompatActivity {
         slotButton.setText(timeLabel);
         slotButton.setAllCaps(false);
         slotButton.setCornerRadius(24);
-        slotButton.setBackgroundColor(getResources().getColor(R.color.surface_dark));
+        
+        slotButton.setBackgroundColor(ContextCompat.getColor(this, R.color.surface_dark));
         slotButton.setStrokeColorResource(R.color.primary_blue);
         slotButton.setStrokeWidth(2);
-        slotButton.setTextColor(getResources().getColor(R.color.text_primary));
+        slotButton.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
         
         slotButton.setOnClickListener(v -> {
             Intent intent = new Intent(AvailableTimeSlotsActivity.this, BookingFormActivity.class);
